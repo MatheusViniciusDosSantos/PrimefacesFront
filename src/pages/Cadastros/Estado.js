@@ -61,7 +61,7 @@ const Estado = () => {
 
         if(objeto.nome.trim()) {
             let _objeto = { ...objeto };
-            if (objeto.id) {
+            if (!objeto.id) {
                 objetoService.postEstado(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
@@ -94,12 +94,8 @@ const Estado = () => {
         });
     }
 
-    const onInputChange = (e, name) => {
-        const val = (e.target && e.target.value) || '';
-        let _objeto = { ...objeto };
-        _objeto[`$name`] = val;
-
-        setObjeto(_objeto);
+    const onInputChange = (event) => {
+        setObjeto({ ...objeto, [event.target.id]: event.target.value });
     }
 
     const leftToolbarTemplate = () => {
@@ -194,13 +190,13 @@ const Estado = () => {
                         
                         <div className="field">
                             <label htmlFor="nome">Nome</label>
-                            <InputText id="nome" value={objeto.nome} onChange={(e) => onInputChange(e, 'nome')} />
+                            <InputText id="nome" value={objeto.nome} onChange={onInputChange} />
                             {submitted && !objeto.nome && <small className="p-invalid">Nome é requerido.</small>}
                         </div>
 
                         <div className="field">
                             <label htmlFor="sigla">Sigla</label>
-                            <InputText id="sigla" value={objeto.sigla} onChange={(e) => onInputChange(e, 'sigla')} />
+                            <InputText id="sigla" value={objeto.sigla} onChange={onInputChange} />
                             {submitted && !objeto.sigla && <small className="p-invalid">Sigla é requerida.</small>}
                         </div>
 
