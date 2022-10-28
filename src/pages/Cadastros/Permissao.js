@@ -1,23 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import classNames from 'classnames';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
-import { FileUpload } from 'primereact/fileupload';
-import { Rating } from 'primereact/rating';
 import { Toolbar } from 'primereact/toolbar';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton } from 'primereact/radiobutton';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { EstadoService } from '../../service/EstadoService';
+import { PermissaoService } from '../../service/PermissaoService';
 
-const Estado = () => {
+const Permissao = () => {
     let objetoNovo = {
-        nome: '',
-        sigla: ''
+        descricao: ''
     }
 
     const [objetos, setObjetos] = useState(null);
@@ -28,11 +21,11 @@ const Estado = () => {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-    const objetoService = new EstadoService();
+    const objetoService = new PermissaoService();
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getEstados().then(res => {
+            objetoService.getPermissaos().then(res => {
                 setObjetos(res.data.content);
             });
         }
@@ -59,15 +52,15 @@ const Estado = () => {
     const saveObjeto = () => {
         setSubmitted(true);
 
-        if(objeto.nome.trim()) {
+        if(objeto.descricao.trim()) {
             let _objeto = { ...objeto };
             if (!objeto.id) {
-                objetoService.postEstado(_objeto).then(data => {
+                objetoService.postPermissao(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putEstado(_objeto).then(data => {
+                objetoService.putPermissao(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -88,11 +81,11 @@ const Estado = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteEstado(objeto.id);
+        objetoService.deletePermissao(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);
-        
+
     }
 
     const onInputChange = (event) => {
@@ -103,7 +96,7 @@ const Estado = () => {
         return(
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="Novo Estado" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
+                    <Button label="Novo Permissao" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
                 </div>
             </React.Fragment>
         );
@@ -118,22 +111,12 @@ const Estado = () => {
         );
     }
 
-    const nomeBodyTemplate = (rowData) => {
+    const descricaoBodyTemplate = (rowData) => {
         return (
             <>
-                <span className="p-column-title">Nome</span>
-                {rowData.nome}
+                <span className="p-column-title">Descrição</span>
+                {rowData.descricao}
             </>
-        );
-    }
-
-    const siglaBodyTemlpate = (rowData) => {
-        return (
-            <>
-                <span className="p-column-title">Sigla</span>
-                {rowData.sigla}
-            </>
-
         );
     }
 
@@ -148,7 +131,7 @@ const Estado = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Estados Cadastro</h5>
+            <h5 className="m-0">Permissaos Cadastro</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
@@ -179,26 +162,19 @@ const Estado = () => {
                     <DataTable ref={dt} value={objetos ? objetos: []}
                         dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Mostrando {first} de {last}. Total de {totalRecords} estados"
-                        globalFilter={globalFilter} emptyMessage="Nenhum estado encontrado." header={header} responsiveLayout="scroll">
+                        currentPageReportTemplate="Mostrando {first} de {last}. Total de {totalRecords} permissões"
+                        globalFilter={globalFilter} emptyMessage="Nenhuma permissao encontrada." header={header} responsiveLayout="scroll">
                         <Column field="id" header="ID" body={idBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '8rem' }}></Column>
-                        <Column field="nome" header="Nome" sortable body={nomeBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="sigla" header="Sigla" body={siglaBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
+                        <Column field="descricao" header="Descrição" sortable body={descricaoBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate}></Column>
                     </DataTable>
 
-                    <Dialog visible={objetoDialog} style={{ width: '450px' }} header="Estado Details" modal className="p-fluid" footer={objetoDialogFooter} onHide={hideDialog}>
+                    <Dialog visible={objetoDialog} style={{ width: '450px' }} header="Permissao Details" modal className="p-fluid" footer={objetoDialogFooter} onHide={hideDialog}>
                         
                         <div className="field">
-                            <label htmlFor="nome">Nome</label>
-                            <InputText id="nome" value={objeto.nome} onChange={onInputChange} />
-                            {submitted && !objeto.nome && <small className="p-invalid">Nome é requerido.</small>}
-                        </div>
-
-                        <div className="field">
-                            <label htmlFor="sigla">Sigla</label>
-                            <InputText id="sigla" value={objeto.sigla} onChange={onInputChange} />
-                            {submitted && !objeto.sigla && <small className="p-invalid">Sigla é requerida.</small>}
+                            <label htmlFor="descricao">Descrição</label>
+                            <InputText id="descricao" value={objeto.descricao} onChange={onInputChange} />
+                            {submitted && !objeto.descricao && <small className="p-invalid">Descrição é requerido.</small>}
                         </div>
 
                     </Dialog>
@@ -206,7 +182,7 @@ const Estado = () => {
                     <Dialog visible={objetoDeleteDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteObjetoDialogFooter} onHide={hideDeleteObjetoDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {objeto && <span>Você tem certeza que quer deletar o estado: <b>{objeto.nome}</b>?</span>}
+                            {objeto && <span>Você tem certeza que quer deletar o permissao: <b>{objeto.descricao}</b>?</span>}
                         </div>
                     </Dialog>
                 </div>
@@ -221,4 +197,4 @@ const comparisonFn = function (prevProps, nextProps) {
     return prevProps.location.pathname === nextProps.location.pathname;
 };
 
-export default React.memo(Estado, comparisonFn);
+export default React.memo(Permissao, comparisonFn);

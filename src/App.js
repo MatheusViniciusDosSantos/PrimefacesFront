@@ -38,6 +38,11 @@ import PrimeReact from 'primereact/api';
 import { Tooltip } from 'primereact/tooltip';
 
 import Estado from './pages/Cadastros/Estado'
+import Marca from './pages/Cadastros/Marca';
+import Categoria from './pages/Cadastros/Categoria';
+import Permissao from './pages/Cadastros/Permissao';
+import Usuario from './pages/Cadastros/Usuario';
+import Produto from './pages/Cadastros/Produto';
 
 import 'primereact/resources/primereact.css';
 import 'primeicons/primeicons.css';
@@ -169,6 +174,21 @@ const App = () => {
             label: 'Cadastros',
             items: [{
                 label: 'Estados', icon: 'pi pi-fw pi-home', to: '/estados'
+            },
+            {
+                label: 'Marcas', icon: 'pi pi-fw pi-home', to: '/marcas'
+            },
+            {
+                label: 'Categorias', icon: 'pi pi-fw pi-home', to: '/categorias'
+            },
+            {
+                label: 'Usuarios', icon: 'pi pi-fw pi-home', to: '/usuarios'
+            },
+            {
+                label: 'Permissoes', icon: 'pi pi-fw pi-home', to: '/permissoes'
+            },
+            {
+                label: 'Produtos', icon: 'pi pi-fw pi-home', to: '/produtos'
             }]
         },
         {
@@ -331,6 +351,11 @@ const App = () => {
                     <Route path="/empty" component={EmptyPage} />
                     <Route path="/documentation" component={Documentation} />
                     <Route path="/estados" component={Estado} />
+                    <Route path="/marcas" component={Marca} />
+                    <Route path="/categorias" component={Categoria} />
+                    <Route path="/usuarios" component={Usuario} />
+                    <Route path="/permissoes" component={Permissao} />
+                    <Route path="/produtos" component={Produto} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />

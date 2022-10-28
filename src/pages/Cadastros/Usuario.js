@@ -1,23 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import classNames from 'classnames';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Toast } from 'primereact/toast';
 import { Button } from 'primereact/button';
-import { FileUpload } from 'primereact/fileupload';
-import { Rating } from 'primereact/rating';
 import { Toolbar } from 'primereact/toolbar';
-import { InputTextarea } from 'primereact/inputtextarea';
-import { RadioButton } from 'primereact/radiobutton';
-import { InputNumber } from 'primereact/inputnumber';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
-import { EstadoService } from '../../service/EstadoService';
+import { UsuarioService } from '../../service/UsuarioService';
+import { Password } from 'primereact/password';
+import { InputMask } from 'primereact/inputmask';
 
-const Estado = () => {
+const Usuario = () => {
     let objetoNovo = {
         nome: '',
-        sigla: ''
+        cpf: '',
+        email: '',
+        senha: ''
     }
 
     const [objetos, setObjetos] = useState(null);
@@ -28,11 +26,11 @@ const Estado = () => {
     const [globalFilter, setGlobalFilter] = useState(null);
     const toast = useRef(null);
     const dt = useRef(null);
-    const objetoService = new EstadoService();
+    const objetoService = new UsuarioService();
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getEstados().then(res => {
+            objetoService.getUsuarios().then(res => {
                 setObjetos(res.data.content);
             });
         }
@@ -62,12 +60,12 @@ const Estado = () => {
         if(objeto.nome.trim()) {
             let _objeto = { ...objeto };
             if (!objeto.id) {
-                objetoService.postEstado(_objeto).then(data => {
+                objetoService.postUsuario(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putEstado(_objeto).then(data => {
+                objetoService.putUsuario(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -88,7 +86,7 @@ const Estado = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteEstado(objeto.id);
+        objetoService.deleteUsuario(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);
@@ -99,11 +97,15 @@ const Estado = () => {
         setObjeto({ ...objeto, [event.target.id]: event.target.value });
     }
 
+    const onInputChangeSenha = (event) => {
+        setObjeto({ ...objeto, [event.target.name]: event.target.value });
+    }
+
     const leftToolbarTemplate = () => {
         return(
             <React.Fragment>
                 <div className="my-2">
-                    <Button label="Novo Estado" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
+                    <Button label="Novo Usuario" icon="pi pi-plus" className="p-button-success mr-2" onClick={openNew} />
                 </div>
             </React.Fragment>
         );
@@ -127,11 +129,21 @@ const Estado = () => {
         );
     }
 
-    const siglaBodyTemlpate = (rowData) => {
+    const cpfBodyTemlpate = (rowData) => {
         return (
             <>
-                <span className="p-column-title">Sigla</span>
-                {rowData.sigla}
+                <span className="p-column-title">CPF</span>
+                {rowData.cpf}
+            </>
+
+        );
+    }
+
+    const emailBodyTemlpate = (rowData) => {
+        return (
+            <>
+                <span className="p-column-title">E-mail</span>
+                {rowData.email}
             </>
 
         );
@@ -148,7 +160,7 @@ const Estado = () => {
 
     const header = (
         <div className="flex flex-column md:flex-row md:justify-content-between md:align-items-center">
-            <h5 className="m-0">Estados Cadastro</h5>
+            <h5 className="m-0">Usuarios Cadastro</h5>
             <span className="block mt-2 md:mt-0 p-input-icon-left">
                 <i className="pi pi-search" />
                 <InputText type="search" onInput={(e) => setGlobalFilter(e.target.value)} placeholder="Search..." />
@@ -179,15 +191,16 @@ const Estado = () => {
                     <DataTable ref={dt} value={objetos ? objetos: []}
                         dataKey="id" paginator rows={10} rowsPerPageOptions={[5, 10, 25]} className="datatable-responsive"
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                        currentPageReportTemplate="Mostrando {first} de {last}. Total de {totalRecords} estados"
-                        globalFilter={globalFilter} emptyMessage="Nenhum estado encontrado." header={header} responsiveLayout="scroll">
+                        currentPageReportTemplate="Mostrando {first} de {last}. Total de {totalRecords} usuarios"
+                        globalFilter={globalFilter} emptyMessage="Nenhum usuario encontrado." header={header} responsiveLayout="scroll">
                         <Column field="id" header="ID" body={idBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '8rem' }}></Column>
                         <Column field="nome" header="Nome" sortable body={nomeBodyTemplate} headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
-                        <Column field="sigla" header="Sigla" body={siglaBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
+                        <Column field="cpf" header="CPF" body={cpfBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
+                        <Column field="email" header="E-mail" body={emailBodyTemlpate} sortable headerStyle={{ width: '14%', minWidth: '10rem' }}></Column>
                         <Column body={actionBodyTemplate}></Column>
                     </DataTable>
 
-                    <Dialog visible={objetoDialog} style={{ width: '450px' }} header="Estado Details" modal className="p-fluid" footer={objetoDialogFooter} onHide={hideDialog}>
+                    <Dialog visible={objetoDialog} style={{ width: '450px' }} header="Usuario Details" modal className="p-fluid" footer={objetoDialogFooter} onHide={hideDialog}>
                         
                         <div className="field">
                             <label htmlFor="nome">Nome</label>
@@ -196,9 +209,21 @@ const Estado = () => {
                         </div>
 
                         <div className="field">
-                            <label htmlFor="sigla">Sigla</label>
-                            <InputText id="sigla" value={objeto.sigla} onChange={onInputChange} />
-                            {submitted && !objeto.sigla && <small className="p-invalid">Sigla é requerida.</small>}
+                            <label htmlFor="cpf">CPF</label>
+                            <InputMask mask='999.999.999-99' id="cpf" value={objeto.cpf} onChange={onInputChange} />
+                            {submitted && !objeto.cpf && <small className="p-invalid">CPF é requerido.</small>}
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="email">E-mail</label>
+                            <InputText id="email" value={objeto.email} onChange={onInputChange} />
+                            {submitted && !objeto.email && <small className="p-invalid">E-mail é requerido.</small>}
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="senha">Senha</label>
+                            <Password id="senha" name='senha' value={objeto.senha} onChange={onInputChangeSenha} />
+                            {submitted && !objeto.senha && <small className="p-invalid">Senha é requerida.</small>}
                         </div>
 
                     </Dialog>
@@ -206,7 +231,7 @@ const Estado = () => {
                     <Dialog visible={objetoDeleteDialog} style={{ width: '450px' }} header="Confirm" modal footer={deleteObjetoDialogFooter} onHide={hideDeleteObjetoDialog}>
                         <div className="flex align-items-center justify-content-center">
                             <i className="pi pi-exclamation-triangle mr-3" style={{ fontSize: '2rem' }} />
-                            {objeto && <span>Você tem certeza que quer deletar o estado: <b>{objeto.nome}</b>?</span>}
+                            {objeto && <span>Você tem certeza que quer deletar o usuario: <b>{objeto.nome}</b>?</span>}
                         </div>
                     </Dialog>
                 </div>
@@ -221,4 +246,4 @@ const comparisonFn = function (prevProps, nextProps) {
     return prevProps.location.pathname === nextProps.location.pathname;
 };
 
-export default React.memo(Estado, comparisonFn);
+export default React.memo(Usuario, comparisonFn);
