@@ -1,23 +1,8 @@
 import axios from 'axios';
+import { BaseService } from './BaseService';
 
-export class CategoriaService {
-
-    url = "http://localhost:8080/api/categoria";
-    urlBarra = "http://localhost:8080/api/categoria/";
-
-    getCategorias() {
-        return axios.get(this.url);
-    }
-
-    postCategoria(categoria) {
-        return axios.post(this.url, categoria);
-    }
-
-    putCategoria(id) {
-        return axios.put(this.urlBarra + id);
-    }
-
-    deleteCategoria(id) {
-        axios.delete(this.urlBarra + id);
+export class CategoriaService extends BaseService {
+    constructor() {
+        super("categoria");
     }
 }

@@ -7,6 +7,9 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { ProdutoService } from '../../service/ProdutoService';
+import { InputNumber } from 'primereact/inputnumber';
+import { Dropdown } from 'primereact/dropdown';
+import { MarcaService } from '../../service/MarcaService';
 
 const Produto = () => {
     let objetoNovo = {
@@ -18,7 +21,9 @@ const Produto = () => {
         categoria: null
     }
 
+
     const [objetos, setObjetos] = useState(null);
+    const [marcas, setMarcas] = useState(null);
     const [objetoDialog, setObjetoDialog] = useState(false);
     const [objetoDeleteDialog, setObjetoDeleteDialog] = useState(false);
     const [objeto, setObjeto] = useState(objetoNovo);
@@ -27,13 +32,17 @@ const Produto = () => {
     const toast = useRef(null);
     const dt = useRef(null);
     const objetoService = new ProdutoService();
+    const marcaService = new MarcaService();
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getProdutos().then(res => {
+            objetoService.getAll().then(res => {
                 setObjetos(res.data.content);
             });
         }
+        marcaService.getAll().then(res => {
+            setMarcas(res.data.content);
+        });
     }, []);
     
 
@@ -60,12 +69,12 @@ const Produto = () => {
         if(objeto.descricao.trim()) {
             let _objeto = { ...objeto };
             if (!objeto.id) {
-                objetoService.postProduto(_objeto).then(data => {
+                objetoService.post(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putProduto(_objeto).then(data => {
+                objetoService.put(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -86,7 +95,7 @@ const Produto = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteProduto(objeto.id);
+        objetoService.delete(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);
@@ -211,13 +220,13 @@ const Produto = () => {
 
                         <div className="field">
                             <label htmlFor="valorVenda">Valor Venda</label>
-                            <InputText id="valorVenda" value={objeto.valorVenda} onChange={onInputChange} />
+                            <InputNumber id="valorVenda" value={objeto.valorVenda} onValueChange={onInputChange} mode="currency" currency='BRL' locale='pt-BR' />
                             {submitted && !objeto.valorVenda && <small className="p-invalid">Valor da venda é requerido.</small>}
                         </div>
 
                         <div className="field">
                             <label htmlFor="valorCusto">Valor Custo</label>
-                            <InputText id="valorCusto" value={objeto.valorCusto} onChange={onInputChange} />
+                            <InputNumber id="valorCusto" value={objeto.valorCusto} onValueChange={onInputChange} mode="currency" currency='BRL' locale='pt-BR' />
                             {submitted && !objeto.valorCusto && <small className="p-invalid">Valor de custo é requerido.</small>}
                         </div>
 
@@ -226,6 +235,13 @@ const Produto = () => {
                             <InputText id="quantidadeEstoque" value={objeto.quantidadeEstoque} onChange={onInputChange} />
                             {submitted && !objeto.quantidadeEstoque && <small className="p-invalid">Quantidade em estoque é requerida.</small>}
                         </div>
+
+                        {/* <div className="field">
+                            <label htmlFor="marca">Quantidade Estoque</label>
+                            <Dropdown id="marca" name='marca' optionLabel='marca.descricao' options={marcas} value={objeto.marca} onChange={onInputChange} filter
+                                placeholder="Selecione uma marca" />
+                            {submitted && !objeto.marca && <small className="p-invalid">Marca é requerida.</small>}
+                        </div> */}
 
                     </Dialog>
 

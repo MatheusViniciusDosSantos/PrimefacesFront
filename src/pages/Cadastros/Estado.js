@@ -32,7 +32,7 @@ const Estado = () => {
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getEstados().then(res => {
+            objetoService.getAll().then(res => {
                 setObjetos(res.data.content);
             });
         }
@@ -62,12 +62,12 @@ const Estado = () => {
         if(objeto.nome.trim()) {
             let _objeto = { ...objeto };
             if (!objeto.id) {
-                objetoService.postEstado(_objeto).then(data => {
+                objetoService.post(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putEstado(_objeto).then(data => {
+                objetoService.put(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -88,7 +88,7 @@ const Estado = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteEstado(objeto.id);
+        objetoService.delete(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);

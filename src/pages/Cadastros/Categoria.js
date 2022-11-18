@@ -25,7 +25,7 @@ const Categoria = () => {
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getCategorias().then(res => {
+            objetoService.getAll().then(res => {
                 setObjetos(res.data.content);
             });
         }
@@ -55,12 +55,12 @@ const Categoria = () => {
         if(objeto.descricao.trim()) {
             let _objeto = { ...objeto };
             if (!objeto.id) {
-                objetoService.postCategoria(_objeto).then(data => {
+                objetoService.post(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putCategoria(_objeto).then(data => {
+                objetoService.put(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -81,7 +81,7 @@ const Categoria = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteCategoria(objeto.id);
+        objetoService.delete(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);

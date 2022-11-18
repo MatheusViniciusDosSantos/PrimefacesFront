@@ -7,18 +7,24 @@ import { Toolbar } from 'primereact/toolbar';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { UsuarioService } from '../../service/UsuarioService';
+import { PermissaoService } from '../../service/PermissaoService';
 import { Password } from 'primereact/password';
 import { InputMask } from 'primereact/inputmask';
+import { MultiSelect } from 'primereact/multiselect';
+import { useFormik } from 'formik';
+import { classNames } from 'classnames';
 
 const Usuario = () => {
     let objetoNovo = {
         nome: '',
         cpf: '',
         email: '',
-        senha: ''
+        senha: '',
+        permissaoUsuarios: []
     }
 
     const [objetos, setObjetos] = useState(null);
+    const [permissoes, setPermissoes] = useState(null);
     const [objetoDialog, setObjetoDialog] = useState(false);
     const [objetoDeleteDialog, setObjetoDeleteDialog] = useState(false);
     const [objeto, setObjeto] = useState(objetoNovo);
@@ -27,17 +33,57 @@ const Usuario = () => {
     const toast = useRef(null);
     const dt = useRef(null);
     const objetoService = new UsuarioService();
+    const permissaoService = new PermissaoService();
 
     useEffect(() => {
         if (objetos == null) {
-            objetoService.getUsuarios().then(res => {
+            objetoService.getAll().then(res => {
                 setObjetos(res.data.content);
             });
         }
+        permissaoService.getAll().then(res => {
+            let permissoesTemporairas = []
+            res.data.content.forEach(element => {
+                permissoesTemporairas.push({permissao: element})
+            });
+            setPermissoes(permissoesTemporairas);
+        });
     }, []);
     
 
-    
+    const formik = useFormik({
+        enableReinitialize:true,
+        initialValues: objeto,
+        validate: (data) => {
+            let errors = {};
+
+            if (!data.nome) {
+                errors.nome = 'Nome é obrigatório';
+            }
+
+            if (!data.email) {
+                errors.email = 'Email é obrigatório';
+            }
+            else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(data.email)) {
+                errors.email = 'Email é inválido. Exemplo: usuario@email.com';
+            }
+
+            if (!data.senha) {
+                errors.senha = 'Senha é obrigatório';
+            }
+
+            if (!data.cpf) {
+                errors.cpf = 'CPF é obrigatório.';
+            }
+
+            return errors;
+        },
+        onSubmit: (data) => {
+            saveObjeto();
+
+            formik.resetForm();
+        }
+    });
 
     const openNew = () => {
         setObjeto(objetoNovo);
@@ -58,14 +104,14 @@ const Usuario = () => {
         setSubmitted(true);
 
         if(objeto.nome.trim()) {
-            let _objeto = { ...objeto };
+            let _objeto = formik.values;
             if (!objeto.id) {
-                objetoService.postUsuario(_objeto).then(data => {
+                objetoService.post(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);
                 });
             } else {
-                objetoService.putUsuario(_objeto).then(data => {
+                objetoService.put(_objeto).then(data => {
                     toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Inserção realizada com sucesso!' });
                     setObjetos(null);
                 });
@@ -86,7 +132,7 @@ const Usuario = () => {
     }
 
     const deleteObjeto = () => {
-        objetoService.deleteUsuario(objeto.id);
+        objetoService.delete(objeto.id);
         toast.current.show({ serverity: 'success', summary: 'Sucesso', detail: 'Removido com sucesso!' });
         hideDeleteObjetoDialog();
         setObjetos(null);
@@ -100,6 +146,11 @@ const Usuario = () => {
     const onInputChangeSenha = (event) => {
         setObjeto({ ...objeto, [event.target.name]: event.target.value });
     }
+
+    const isFormFieldValid = (name) => !!(formik.touched[name] && formik.errors[name]);
+    const getFormErrorMessage = (name) => {
+        return isFormFieldValid(name) && <small className="p-error">{formik.errors[name]}</small>;
+    };
 
     const leftToolbarTemplate = () => {
         return(
@@ -171,7 +222,7 @@ const Usuario = () => {
     const objetoDialogFooter = (
         <>
             <Button label="Cancel" icon="pi pi-times" className="p-button-text" onClick={hideDialog} />
-            <Button label="Salvar" icon="pi pi-check" className="p-button-text" onClick={saveObjeto} />
+            <Button type='submit' form='formularioUsuario' label="Salvar" icon="pi pi-check" className="p-button-text" />
         </>
     );
     const deleteObjetoDialogFooter = (
@@ -201,30 +252,36 @@ const Usuario = () => {
                     </DataTable>
 
                     <Dialog visible={objetoDialog} style={{ width: '450px' }} header="Usuario Details" modal className="p-fluid" footer={objetoDialogFooter} onHide={hideDialog}>
+                        <form id='formularioUsuario' onSubmit={formik.handleSubmit}>
+                            <div className="field">
+                                <label htmlFor="nome">Nome</label>
+                                <InputText id="nome" value={formik.values.nome} onChange={formik.handleChange} />
+                                {getFormErrorMessage('nome')}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="cpf">CPF</label>
+                                <InputMask mask='999.999.999-99' id="cpf" value={formik.values.cpf} onChange={formik.handleChange} />
+                                {getFormErrorMessage('cpf')}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="email">E-mail</label>
+                                <InputText id="email" value={formik.values.email} onChange={formik.handleChange} />
+                                {getFormErrorMessage('email')}
+                            </div>
+
+                            <div className="field">
+                                <label htmlFor="senha">Senha</label>
+                                <Password id="senha" name='senha' value={formik.values.senha} onChange={formik.handleChange} />
+                                {getFormErrorMessage('senha')}
+                            </div>
+                            <div className="field">
+                                <label htmlFor="permissaoUsuarios">Permissões</label>
+                                <MultiSelect id="permissaoUsuarios" dataKey="permissao.id" value={formik.values.permissaoUsuarios} options={permissoes} onChange={formik.handleChange} optionLabel="permissao.descricao" placeholder="Selecione as permissões" />
+                            </div>
+                        </form>
                         
-                        <div className="field">
-                            <label htmlFor="nome">Nome</label>
-                            <InputText id="nome" value={objeto.nome} onChange={onInputChange} />
-                            {submitted && !objeto.nome && <small className="p-invalid">Nome é requerido.</small>}
-                        </div>
-
-                        <div className="field">
-                            <label htmlFor="cpf">CPF</label>
-                            <InputMask mask='999.999.999-99' id="cpf" value={objeto.cpf} onChange={onInputChange} />
-                            {submitted && !objeto.cpf && <small className="p-invalid">CPF é requerido.</small>}
-                        </div>
-
-                        <div className="field">
-                            <label htmlFor="email">E-mail</label>
-                            <InputText id="email" value={objeto.email} onChange={onInputChange} />
-                            {submitted && !objeto.email && <small className="p-invalid">E-mail é requerido.</small>}
-                        </div>
-
-                        <div className="field">
-                            <label htmlFor="senha">Senha</label>
-                            <Password id="senha" name='senha' value={objeto.senha} onChange={onInputChangeSenha} />
-                            {submitted && !objeto.senha && <small className="p-invalid">Senha é requerida.</small>}
-                        </div>
 
                     </Dialog>
 

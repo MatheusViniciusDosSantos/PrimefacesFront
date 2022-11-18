@@ -1,23 +1,9 @@
 import axios from 'axios';
+import { BaseService } from './BaseService';
 
-export class ProdutoService {
+export class ProdutoService extends BaseService {
 
-    url = "http://localhost:8080/api/produto";
-    urlBarra = "http://localhost:8080/api/produto/";
-
-    getProdutos() {
-        return axios.get(this.url);
-    }
-
-    postProduto(produto) {
-        return axios.post(this.url, produto);
-    }
-
-    putProduto(id) {
-        return axios.put(this.urlBarra + id);
-    }
-
-    deleteProduto(id) {
-        axios.delete(this.urlBarra + id);
+    constructor() {
+        super("produto");
     }
 }
