@@ -44,7 +44,7 @@ const Usuario = () => {
         permissaoService.getAll().then(res => {
             let permissoesTemporairas = []
             res.data.content.forEach(element => {
-                permissoesTemporairas.push({permissao: element})
+                permissoesTemporairas.push({id: null, permissao: element, dataCadastro: null,  dataUltimaAlteracao: null})
             });
             setPermissoes(permissoesTemporairas);
         });
@@ -103,9 +103,9 @@ const Usuario = () => {
     const saveObjeto = () => {
         setSubmitted(true);
 
-        if(objeto.nome.trim()) {
+        if(formik.values.nome.trim()) {
             let _objeto = formik.values;
-            if (!objeto.id) {
+            if (!formik.values.id) {
                 objetoService.post(_objeto).then(data => {
                     toast.current.show({serverity: 'success', summary: 'Sucesso', detail: 'Alteração realizada com sucesso!'});
                     setObjetos(null);

@@ -12,12 +12,16 @@ export class BaseService {
         return axios.get(this.url);
     }
 
+    getById(id) {
+        return axios.get(this.urlBarra + id);
+    }
+
     post(objeto) {
         return axios.post(this.url, objeto);
     }
 
-    put(id) {
-        return axios.put(this.urlBarra + id);
+    put(objeto) {
+        return axios.put(this.urlBarra + objeto.id, objeto);
     }
 
     delete(id) {

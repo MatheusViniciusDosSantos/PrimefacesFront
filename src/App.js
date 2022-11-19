@@ -52,6 +52,7 @@ import './assets/demo/flags/flags.css';
 import './assets/demo/Demos.scss';
 import './assets/layout/layout.scss';
 import './App.scss';
+import ProdutoImagens from './pages/Cadastros/ProdutoImagens';
 
 const App = () => {
     const [layoutMode, setLayoutMode] = useState('static');
@@ -356,6 +357,7 @@ const App = () => {
                     <Route path="/usuarios" component={Usuario} />
                     <Route path="/permissoes" component={Permissao} />
                     <Route path="/produtos" component={Produto} />
+                    <Route path="/produtoImagens/:id" component={ProdutoImagens} />
                 </div>
 
                 <AppFooter layoutColorMode={layoutColorMode} />
