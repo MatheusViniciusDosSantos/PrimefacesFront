@@ -25,6 +25,6 @@ export class BaseService {
     }
 
     delete(id) {
-        axios.delete(this.urlBarra + id);
+        return axios.delete(this.urlBarra + id);
     }
 }

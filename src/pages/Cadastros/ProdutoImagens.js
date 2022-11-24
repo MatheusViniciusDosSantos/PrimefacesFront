@@ -53,7 +53,7 @@ const ProdutoImagens = () => {
 
     const deleteObjeto = () => {
 
-           produtoImagensService.excluir(objeto.id).then(data => {
+           produtoImagensService.delete(objeto.id).then(data => {
                 toast.current.show({ severity: 'success', summary: 'Sucesso', detail: 'Removido', life: 3000 });
                 setObjetos(null);
                 setObjetoDeleteDialog(false);    

@@ -10,6 +10,7 @@ import { ProdutoService } from '../../service/ProdutoService';
 import { InputNumber } from 'primereact/inputnumber';
 import { Dropdown } from 'primereact/dropdown';
 import { MarcaService } from '../../service/MarcaService';
+import { CategoriaService } from '../../service/CategoriaService'
 import { Link } from 'react-router-dom';
 
 const Produto = () => {
@@ -25,6 +26,7 @@ const Produto = () => {
 
     const [objetos, setObjetos] = useState(null);
     const [marcas, setMarcas] = useState(null);
+    const [categorias, setCategorias] = useState(null);
     const [objetoDialog, setObjetoDialog] = useState(false);
     const [objetoDeleteDialog, setObjetoDeleteDialog] = useState(false);
     const [objeto, setObjeto] = useState(objetoNovo);
@@ -34,6 +36,7 @@ const Produto = () => {
     const dt = useRef(null);
     const objetoService = new ProdutoService();
     const marcaService = new MarcaService();
+    const categoriaService = new CategoriaService();
 
     useEffect(() => {
         if (objetos == null) {
@@ -43,6 +46,9 @@ const Produto = () => {
         }
         marcaService.getAll().then(res => {
             setMarcas(res.data.content);
+        });
+        categoriaService.getAll().then(res => {
+            setCategorias(res.data.content);
         });
     }, []);
     
@@ -238,12 +244,19 @@ const Produto = () => {
                             {submitted && !objeto.quantidadeEstoque && <small className="p-invalid">Quantidade em estoque é requerida.</small>}
                         </div>
 
-                        {/* <div className="field">
-                            <label htmlFor="marca">Quantidade Estoque</label>
-                            <Dropdown id="marca" name='marca' optionLabel='marca.descricao' options={marcas} value={objeto.marca} onChange={onInputChange} filter
+                        <div className="field">
+                            <label htmlFor="marca">Marca</label>
+                            <Dropdown id="marca" name='marca' optionLabel='descricao' options={marcas} value={objeto.marca} onChange={onInputChange} filter
                                 placeholder="Selecione uma marca" />
                             {submitted && !objeto.marca && <small className="p-invalid">Marca é requerida.</small>}
-                        </div> */}
+                        </div>
+
+                        <div className="field">
+                            <label htmlFor="categoria">Categoria</label>
+                            <Dropdown id="categoria" name='categoria' optionLabel='descricao' options={categorias} value={objeto.categoria} onChange={onInputChange} filter
+                                placeholder="Selecione uma categoria" />
+                            {submitted && !objeto.categoria && <small className="p-invalid">Categoria é requerida.</small>}
+                        </div>
 
                     </Dialog>
 
