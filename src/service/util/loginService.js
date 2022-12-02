@@ -6,11 +6,12 @@ export class LoginService extends BaseService {
     CHAVE_TOKEN = "@token_loja";
 
     constructor() {
-        super("pessoa-gerenciamento");
+        super("usuarioGerenciamento");
     }
 
     login(email, senha, mensagemErro) {
-        this.axiosInstance.post(this.url + "login", { 'email': email, 'senha': senha }).then(res => {
+        var usuario = { "email": email, "senha": senha }
+        axios.post(this.urlBarra + "login", usuario).then(res => {
             localStorage.setItem(this.CHAVE_TOKEN, res.data.token);
             window.location.href = "/";
         }).catch(error => {
